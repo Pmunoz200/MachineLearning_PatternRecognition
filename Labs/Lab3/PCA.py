@@ -60,16 +60,22 @@ def PCA(attribute_matrix, m):
     return P
 
 
+def graphic_scatter_2d(matrix, labels, names, x_axis="Axis 1", y_axis="Axis 2"):
+    for i in range(len(names)):
+        plt.scatter(matrix[0][labels == i], matrix[1][labels == i], label=names[i])
+    plt.xlabel(x_axis)
+    plt.ylabel(y_axis)
+    plt.legend()
+    plt.show()
+
+
 if __name__ == '__main__':
     pathname = '/Users/pablomunoz/Desktop/Polito 2023-1/MachineLearning/Codes/Labs/data/iris.csv'
-    [attributes, lables] = load(pathname)
+    [attributes, labels] = load(pathname)
     m = 2
     P = PCA(attributes, m)
     x = np.dot(P.T, attributes)
 
-    plt.scatter(x[0][lables == 0], x[1][lables == 0], c='orange')
-    plt.scatter(x[0][lables == 1], x[1][lables == 1], c='blue')
-    plt.scatter(x[0][lables == 2], x[1][lables == 2], c='green')
-    plt.show()
+    graphic_scatter_2d(x, labels, class_label)
 
 
