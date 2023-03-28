@@ -32,12 +32,12 @@ def covariance_between_class(matrix_values, label, class_labels):
 
 
 def between_within_covariance (matrix_values, label, class_labels):
-    Sw = covariance_within_class(attributes, labels, class_labels)
-    Sb = covariance_between_class(attributes, labels, class_labels)
+    Sw = covariance_within_class(matrix_values, label, class_labels)
+    Sb = covariance_between_class(matrix_values, label, class_labels)
     return Sw, Sb
 
 
-def LDA_generalized_problem(matrix_values, label, class_labels, m):
+def LDA1(matrix_values, label, class_labels, m):
     [Sw, Sb] = between_within_covariance(matrix_values, label, class_labels)
     s, U = scipy.linalg.eigh(Sb, Sw)
     W = U[:, ::-1][:, 0:m]
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     [attributes, labels] = general_methods.load(pathname, class_label, attribute_names)
     [Sw, Sb] = between_within_covariance(attributes, labels, class_label)
-    [W, U] = LDA_generalized_problem(attributes, labels, class_label, m)
+    [W, U] = LDA1(attributes, labels, class_label, m)
     P = np.dot(W.T, attributes)
     general_methods.graphic_scatter_2d(P, labels, class_label)
 

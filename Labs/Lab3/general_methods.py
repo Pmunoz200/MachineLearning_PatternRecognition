@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import scipy
 from matplotlib import pyplot as plt
 
 # class_label = []  # Fill with class label names
@@ -74,6 +75,49 @@ def PCA(attribute_matrix, m):
     s, U = eigen(C)
     P = U[:, ::-1][:, 0:m]
     return P
+
+
+def covariance_within_class(matrix_values, label, class_labels):
+    within_cov = np.zeros((matrix_values.shape[0], matrix_values.shape[0]))
+    n = matrix_values.size
+    for i in range(len(class_labels)):
+        centered_matrix = center_data(matrix_values[:, label == i])
+        cov_matrix = covariance(centered_matrix)
+        cov_matrix = np.multiply(cov_matrix, centered_matrix.size)
+        within_cov = np.add(within_cov, cov_matrix)
+    within_cov = np.divide(within_cov, n)
+    return within_cov
+
+
+def covariance_between_class(matrix_values, label, class_labels):
+    between_cov = np.zeros((matrix_values.shape[0], matrix_values.shape[0]))
+    N = matrix_values.size
+    m_general = mean_of_matrix_rows(matrix_values)
+    for i in range(len(class_labels)):
+        values = matrix_values[:, label == i]
+        nc = values.size
+        m_class = mean_of_matrix_rows(values)
+        norm_means = np.subtract(m_class, m_general)
+        matr = np.multiply(nc, np.dot(norm_means, norm_means.T))
+        between_cov = np.add(between_cov, matr)
+    between_cov = np.divide(between_cov, N)
+    return between_cov
+
+
+def between_within_covariance (matrix_values, label, class_labels):
+    Sw = covariance_within_class(matrix_values, label, class_labels)
+    Sb = covariance_between_class(matrix_values, label, class_labels)
+    return Sw, Sb
+
+
+def LDA1(matrix_values, label, class_labels, m):
+    [Sw, Sb] = between_within_covariance(matrix_values, label, class_labels)
+    s, U = scipy.linalg.eigh(Sb, Sw)
+    W = U[:, ::-1][:, 0:m]
+    print(W)
+    UW, _, _ = np.linalg.svd(W)
+    U = UW[:, 0:m]
+    return W, U
 
 
 #  General method to graph a class-related data into a 2d scatter plot
