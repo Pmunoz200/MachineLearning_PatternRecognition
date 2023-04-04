@@ -12,21 +12,20 @@ def logpdf_GAU_ND(x, mu, C):
     # print(inv_C.shape)
     [_, log_C] = np.linalg.slogdet(C)
     # print(log_C)
-    y = np.zeros(x.T.shape)
-    for j in range(M):
-        c = 0
-        for i in x.T:
-            # x_i = x[:, i]
-            norm_x = np.subtract(i, mu)
-            print(norm_x.shape)
-            inter_value = np.dot(norm_x.T, inv_C)
-            print(inter_value.shape)
-            dot_mult = np.dot(inter_value, norm_x)
-            MVG = (-M*math.log((2*math.pi)) - log_C - dot_mult)/2
-            #MVG = np.subtract((-1*M*np.log(2*np.pi))/2, np.subtract(log_C, dot_mult)/2)
-            print(MVG)
-            y[c, j] = MVG
-            c += 1
+
+    y = np.zeros(x.shape[1])
+    for i in range(x.shape[1]):
+        # x_i = x[:, i]
+        norm_x = np.subtract(x[0][i], mu)
+        print(norm_x.shape)
+        inter_value = np.dot(norm_x.T, inv_C)
+        print(inter_value.shape)
+        dot_mult = np.dot(inter_value, norm_x)
+        MVG = (-M*math.log((2*math.pi)) - log_C - dot_mult)/2
+        # MVG = np.subtract((-1*M*np.log(2*np.pi))/2, np.subtract(log_C, dot_mult)/2)
+        print(MVG)
+        y[i] = MVG
+
     return y
 
 
@@ -44,7 +43,7 @@ if __name__ == '__main__':
     pdfGau = logpdf_GAU_ND(ML.vrow(XPlot), m, C)
     print(np.abs(pdfSol - pdfGau).max())
 
-    XND = np.load('./XND.npy')
+'''    XND = np.load('./XND.npy')
     print(XND.shape)
     mu = np.load('./muND.npy')
     C = np.load('./CND.npy')
@@ -52,6 +51,6 @@ if __name__ == '__main__':
     pdfSol = np.load('./llND.npy')
     # print(pdfSol.shape)
     pdfGau = logpdf_GAU_ND(XND, mu, C)
-    print(np.abs(pdfSol - pdfGau).max())
+    print(np.abs(pdfSol - pdfGau).max())'''
 
 
