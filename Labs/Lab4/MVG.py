@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from MLandPattern import MLandPattern as ML
+import time
 
 
 def logpdf_GAU_ND(x, mu, C):
@@ -12,20 +13,13 @@ def logpdf_GAU_ND(x, mu, C):
     [_, log_C] = np.linalg.slogdet(C)
 
     #print(log_C)
+    log_2pi = -M * math.log(2*math.pi)
+    x_norm = x-mu
+    inter_value = np.dot(x_norm.T, inv_C)
+    dot_mul = np.dot(inter_value, x_norm)
+    dot_mul = np.diag(dot_mul)
 
-    log_2pi = math.log(2*math.pi)
-    y = np.zeros(x.shape[1]) if M == 1 else np.zeros(x.shape)
-    for i in range(x.shape[1]):
-        # x_i = x[:, i]
-        norm_x = ML.vcol(x[:, i]) - mu
-        inter_value = np.dot(norm_x.T, inv_C)
-        dot_mult = np.dot(inter_value, norm_x)
-        MVG = (-M*log_2pi - log_C - dot_mult)/2
-        # MVG = np.subtract((-1*M*np.log(2*np.pi))/2, np.subtract(log_C, dot_mult)/2)
-        if M == 1:
-            y[i] = MVG
-        else:
-            y[:, i] = MVG
+    y = (log_2pi - log_C - dot_mul)/2
     return y
 
 
@@ -40,7 +34,14 @@ if __name__ == '__main__':
     plt.plot(XPlot.ravel(), np.exp(logpdf_GAU_ND(ML.vrow(XPlot), m, C)))
     # plt.show()
     pdfSol = np.load('./llGAU.npy')
+    start1 = time.time()
     pdfGau = logpdf_GAU_ND(ML.vrow(XPlot), m, C)
+    end1 = time.time()
+    start2 = time.time()
+    pdfG = ML.logpdf_GAU_ND(ML.vrow(XPlot), m, C)
+    end2 = time.time()
+    print(f'Time optimized: {start1-end1}')
+    print(f'Time normal: {start2 - end2}')
     print("1-D array absolute max error: ", end='')
     print(np.abs(pdfSol - pdfGau).max())
 
