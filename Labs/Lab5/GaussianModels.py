@@ -95,7 +95,7 @@ def MVG_classifier(
         print(f"Accuracy: {acc}")
         print(f"Error: {1 - acc}")
 
-    return SPost, predictions
+    return S, SPost, predictions, acc
 
 
 def MVG_log_classifier(

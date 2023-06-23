@@ -62,9 +62,41 @@ def TiedGaussian(train_data, train_labels, test_data, prior_probability, test_la
     return SPost, predictions
 
 
+def Tied_Naive_classifier(
+    train_data, train_labels, test_data, prior_probability, test_label=[]
+):
+    class_labels = np.unique(train_labels)
+    cov = ML.covariance_within_class(train_data, train_labels)
+    identity = np.eye(cov.shape[1])
+    cov = cov * identity
+    multi_mu = ML.multiclass_mean(train_data, train_labels)
+    densities = []
+    for i in range(class_labels.size):
+        densities.append(
+            np.exp(ML.logLikelihood(test_data, ML.vcol(multi_mu[i, :]), cov))
+        )
+    S = np.array(densities)
+    SJoint = S * prior_probability
+    SMarginal = ML.vrow(SJoint.sum(0))
+    SPost = SJoint / SMarginal
+    predictions = np.argmax(SPost, axis=0)
+
+    if len(test_label) != 0:
+        acc = 0
+        for i in range(len(LTE)):
+            if predictions[i] == LTE[i]:
+                acc += 1
+        acc /= len(LTE)
+        print(f"Accuracy: {acc*100}%")
+        print(f"Error: {(1 - acc)*100}%")
+
+    return SPost, predictions
+
+
 if __name__ == "__main__":
     [D, L] = load_iris()
     (DTR, LTR), (DTE, LTE) = split_db_2to1(D, L)
     prior_prob = ML.vcol(np.ones(3) * (1 / 3))
 
     [SPost, predictions] = TiedGaussian(DTR, LTR, DTE, prior_prob, LTE)
+    [SPost, predictions] = Tied_Naive_classifier(DTR, LTR, DTE, prior_prob, LTE)
