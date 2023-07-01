@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.optimize
+import scipy.spatial.distance
 import MLandPattern.MLandPattern as ML
 import sklearn.datasets
 
@@ -23,11 +24,8 @@ def polynomial_kernel(xi, xj, d, C, eps):
 
 
 def radial_kernel(xi, xj, gamma, eps):
-    G = np.ones((xi.shape[1], xj.shape[1]))
-    for i in range(xi.shape[1]):
-        for j in range(xj.shape[1]):
-            absolute = np.linalg.norm(xi[:, i] - xj[:, j])
-            G[i, j] = -gamma * np.square(absolute)
+    diff = xi[:, :, np.newaxis] - xj[:, np.newaxis, :]
+    G = -gamma * np.square(np.linalg.norm(diff, axis=0))
     G = np.add(np.exp(G), eps)
     return G
 
@@ -130,8 +128,9 @@ if __name__ == "__main__":
         constrain=1,
         dim=2,
         c=1,
-        gamma=10,
+        gamma=1,
         eps=1,
         K=1,
+        model="radial",
     )
     print((1 - accuracy) * 100)
